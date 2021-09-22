@@ -21,29 +21,66 @@ let formulaBar = document.querySelector(".formula-bar");
 formulaBar.addEventListener("keydown", (e) => {
     let inputFormula = formulaBar.value;
     if (e.key === "Enter" && inputFormula) {
-        
+
 
         // If change in formula, break old P-C relation, evaluate new formula, add new P-C relation
         let address = addressBar.value;
         let [cell, cellProp] = getCellAndCellProp(address);
         if (inputFormula !== cellProp.formula) removeChildFromParent(cellProp.formula);
 
+        addChildToGraphComponent(inputFormula, address);
+        // Check formula is cyclic or not, then only evaluate
+        // True -> cycle, False -> Not cyclic
+        console.log(graphComponentMatrix);
+        let isCyclic = isGraphCylic(graphComponentMatrix);
+        if (isCyclic === true) {
+            alert("Your formula is cyclic");
+            removeChildFromGraphComponent(inputFormula, address);
+            return;
+        }
+
         let evaluatedValue = evaluateFormula(inputFormula);
 
         // To update UI and cellProp in DB
         setCellUIAndCellProp(evaluatedValue, inputFormula, address);
         addChildToParent(inputFormula);
-        console.log(sheetDB);
 
         updateChildrenCells(address);
     }
 })
 
+function addChildToGraphComponent(formula, childAddress) {
+    let [crid, ccid] = decodeRIDCIDFromAddress(childAddress);
+    let encodedFormula = formula.split(" ");
+    for (let i = 0; i < encodedFormula.length; i++) {
+        let asciiValue = encodedFormula[i].charCodeAt(0);
+        if (asciiValue >= 65 && asciiValue <= 90) {
+            let [prid, pcid] = decodeRIDCIDFromAddress(encodedFormula[i]);
+            // B1: A1 + 10
+            // rid -> i, cid -> j
+            graphComponentMatrix[prid][pcid].push([crid, ccid]);
+        }
+    }
+}
+
+function removeChildFromGraphComponent(formula, childAddress) {
+    let [crid, ccid] = decodeRIDCIDFromAddress(childAddress);
+    let encodedFormula = formula.split(" ");
+
+    for (let i = 0; i < encodedFormula.length; i++) {
+        let asciiValue = encodedFormula[i].charCodeAt(0);
+        if (asciiValue >= 65 && asciiValue <= 90) {
+            let [prid, pcid] = decodeRIDCIDFromAddress(encodedFormula[i]);
+            graphComponentMatrix[prid][pcid].pop();
+        }
+    }
+}
+
 function updateChildrenCells(parentAddress) {
     let [parentCell, parentCellProp] = getCellAndCellProp(parentAddress);
     let children = parentCellProp.children;
 
-    for (let i = 0;i < children.length;i++) {
+    for (let i = 0; i < children.length; i++) {
         let childAddress = children[i];
         let [childCell, childCellProp] = getCellAndCellProp(childAddress);
         let childFormula = childCellProp.formula;
@@ -57,7 +94,7 @@ function updateChildrenCells(parentAddress) {
 function addChildToParent(formula) {
     let childAddress = addressBar.value;
     let encodedFormula = formula.split(" ");
-    for (let i = 0;i < encodedFormula.length;i++) {
+    for (let i = 0; i < encodedFormula.length; i++) {
         let asciiValue = encodedFormula[i].charCodeAt(0);
         if (asciiValue >= 65 && asciiValue <= 90) {
             let [parentCell, parentCellProp] = getCellAndCellProp(encodedFormula[i]);
@@ -69,7 +106,7 @@ function addChildToParent(formula) {
 function removeChildFromParent(formula) {
     let childAddress = addressBar.value;
     let encodedFormula = formula.split(" ");
-    for (let i = 0;i < encodedFormula.length;i++) {
+    for (let i = 0; i < encodedFormula.length; i++) {
         let asciiValue = encodedFormula[i].charCodeAt(0);
         if (asciiValue >= 65 && asciiValue <= 90) {
             let [parentCell, parentCellProp] = getCellAndCellProp(encodedFormula[i]);
@@ -81,7 +118,7 @@ function removeChildFromParent(formula) {
 
 function evaluateFormula(formula) {
     let encodedFormula = formula.split(" ");
-    for (let i = 0;i < encodedFormula.length;i++) {
+    for (let i = 0; i < encodedFormula.length; i++) {
         let asciiValue = encodedFormula[i].charCodeAt(0);
         if (asciiValue >= 65 && asciiValue <= 90) {
             let [cell, cellProp] = getCellAndCellProp(encodedFormula[i]);
@@ -94,7 +131,7 @@ function evaluateFormula(formula) {
 
 function setCellUIAndCellProp(evaluatedValue, formula, address) {
     let [cell, cellProp] = getCellAndCellProp(address);
-    
+
     //UI update
     cell.innerText = evaluatedValue;
     // DB update

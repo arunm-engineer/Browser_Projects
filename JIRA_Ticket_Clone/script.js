@@ -85,6 +85,7 @@ addBtn.addEventListener("click", (e) => {
 })
 removeBtn.addEventListener("click", (e) => {
     removeFlag = !removeFlag;
+    console.log(removeFlag);
 })
 
 
@@ -117,14 +118,25 @@ function createTicket(ticketColor, ticketTask, ticketID) {
         localStorage.setItem("jira_tickets", JSON.stringify(ticketsArr));
     }
     console.log(ticketsArr);
-    handleRemoval(ticketCont);
+    handleRemoval(ticketCont, id);
     handleLock(ticketCont, id);
     handleColor(ticketCont, id);
 }
 
-function handleRemoval(ticket) {
+function handleRemoval(ticket, id) {
     // removeFlag -> true -> remove
-    if (removeFlag) ticket.remove();
+    ticket.addEventListener("click", (e) => {
+        if (!removeFlag) return;
+
+        let ticketIdx = getTikcetIdx(id);
+
+        console.log(ticketIdx, ticketsArr);
+        ticketsArr.splice(ticketIdx, 1);   //Delete in local storage and update in local storage and then delete from UI page
+        console.log(ticketsArr);
+        let strTicketsArr = JSON.stringify(ticketsArr);
+        localStorage.setItem("jira_tickets", strTicketsArr);
+        ticket.remove();
+    })
 }
 
 function handleLock(ticket, id) {
@@ -185,7 +197,7 @@ function getTikcetIdx(id) {
 function setModalToDefault() {
     modalCont.style.display = "none";
     textareaCont.value = "";
-    modalPriorityColor = colors[colors.length-1];
+    modalPriorityColor = colors[colors.length - 1];
     allPriorityColors.forEach((priorityColorElem, idx) => {
         priorityColorElem.classList.remove("border");
     })

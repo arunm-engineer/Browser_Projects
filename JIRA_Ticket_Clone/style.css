@@ -1,10 +1,11 @@
 * {
     box-sizing: border-box;
-    font-family: 'Open Sans Condensed', sans-serif;
+    font-family: 'Yanone Kaffeesatz', sans-serif;
 }
 body {
     margin: 0;
     padding: 0;
+    background-color: #f5f6fa;
 }
 
 .toolbox-cont {
@@ -80,9 +81,9 @@ body {
     border: none;
     outline: none;
     resize: none;
-    background-color: #d2dae2;
+    background-color: #dfe4ea;
     padding: 2rem;
-    font-size: 1.5rem;
+    font-size: 1.7rem;
 }
 .priority-colors-cont {
     height: 100%;
@@ -117,6 +118,7 @@ body {
     height: calc( 100% - 1rem - 2rem - 2rem );
     padding: 0.4rem;
     outline: none;
+    font-size: 1.3rem;
 }
 .ticket-lock {
     height: 2rem;
