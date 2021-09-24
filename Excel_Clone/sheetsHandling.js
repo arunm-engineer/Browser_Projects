@@ -1,7 +1,7 @@
 let activeSheetColor  ="#ced6e0";
-
 let sheetsFolderCont = document.querySelector(".sheets-folder-cont");
 let addSheetBtn = document.querySelector(".sheet-add-icon");
+
 addSheetBtn.addEventListener("click", (e) => {
     let sheet = document.createElement("div");
     sheet.setAttribute("class", "sheet-folder");
