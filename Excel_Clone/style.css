@@ -8,14 +8,23 @@ body {
 
 .page-actions-cont {
     height: 3rem;
-    background-color: #218c74;;
+    background-color: #218c74;
     display: flex;
     align-items: flex-end;
     padding-left: 1rem;
 }
 .page-action {
-    margin: 0.5rem;
+    width: 3.5rem;
+    height: 2rem;
+    text-align: center;
     color: #f1f2f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.selected-page-action {
+    background-color: #f1f2f6;
+    color: #218c74;
 }
 .cellprop-actions-cont {
     height: 3rem;

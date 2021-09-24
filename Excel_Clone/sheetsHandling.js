@@ -14,6 +14,8 @@ addSheetBtn.addEventListener("click", (e) => {
     `;
 
     sheetsFolderCont.appendChild(sheet);
+    sheet.scrollIntoView();
+
     // DB
     createSheetDB();
     createGraphComponentMatrix();
@@ -69,7 +71,6 @@ function handleSheetDB(sheetIdx) {
 }
 
 function handleSheetProperties() {
-    console.log("Handling props", sheetDB);
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < cols; j++) {
             let cell = document.querySelector(`.cell[rid="${i}"][cid="${j}"]`);
