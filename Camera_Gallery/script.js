@@ -4,6 +4,7 @@ let recordBtn = document.querySelector(".record-btn");
 let captureBtnCont = document.querySelector(".capture-btn-cont");
 let captureBtn = document.querySelector(".capture-btn");
 let recordFlag = false;
+let transparentColor = "transparent";
 
 let recorder;
 let chunks = []; // Media data in chunks
@@ -28,12 +29,22 @@ navigator.mediaDevices.getUserMedia(constraints)
         recorder.addEventListener("stop", (e) => {
             // Conversion of media chunks data to video
             let blob = new Blob(chunks, { type: "video/mp4" });
-            let videoURL = URL.createObjectURL(blob);
 
-            let a = document.createElement("a");
-            a.href = videoURL;
-            a.download = "stream.mp4";
-            a.click();
+            if (db) {
+                let videoID = shortid();
+                let dbTransaction = db.transaction("video", "readwrite");
+                let videoStore = dbTransaction.objectStore("video");
+                let videoEntry = {
+                    id: `vid-${videoID}`,
+                    blobData: blob
+                }
+                videoStore.add(videoEntry);
+            }
+
+            // let a = document.createElement("a");
+            // a.href = videoURL;
+            // a.download = "stream.mp4";
+            // a.click();
         })
     })
 
@@ -52,6 +63,37 @@ recordBtnCont.addEventListener("click", (e) => {
         recordBtn.classList.remove("scale-record");
         stopTimer();
     }
+})
+
+captureBtnCont.addEventListener("click", (e) => {
+    captureBtn.classList.add("scale-capture");
+
+    let canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    let tool = canvas.getContext("2d");
+    tool.drawImage(video, 0, 0, canvas.width, canvas.height);
+    // Filtering 
+    tool.fillStyle = transparentColor;
+    tool.fillRect(0, 0, canvas.width, canvas.height);
+
+    let imageURL = canvas.toDataURL();
+
+    if (db) {
+        let imageID = shortid();
+        let dbTransaction = db.transaction("image", "readwrite");
+        let imageStore = dbTransaction.objectStore("image");
+        let imageEntry = {
+            id: `img-${imageID}`,
+            url: imageURL
+        }
+        imageStore.add(imageEntry);
+    }
+
+    setTimeout(() => {
+        captureBtn.classList.remove("scale-capture");
+    }, 500)
 })
 
 let timerID;
@@ -86,3 +128,15 @@ function stopTimer() {
     timer.innerText = "00:00:00";
     timer.style.display = "none";
 }
+
+
+// Filtering logic
+let filterLayer = document.querySelector(".filter-layer");
+let allFilters = document.querySelectorAll(".filter");
+allFilters.forEach((filterElem) => {
+    filterElem.addEventListener("click", (e) => {
+        // Get style
+        transparentColor = getComputedStyle(filterElem).getPropertyValue("background-color");
+        filterLayer.style.backgroundColor = transparentColor;
+    })
+})

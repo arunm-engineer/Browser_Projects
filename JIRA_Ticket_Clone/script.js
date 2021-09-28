@@ -128,14 +128,14 @@ function handleRemoval(ticket, id) {
     ticket.addEventListener("click", (e) => {
         if (!removeFlag) return;
 
-        let ticketIdx = getTikcetIdx(id);
+        let idx = getTikcetIdx(id);
 
-        console.log(ticketIdx, ticketsArr);
-        ticketsArr.splice(ticketIdx, 1);   //Delete in local storage and update in local storage and then delete from UI page
-        console.log(ticketsArr);
+        // DB removal
+        ticketsArr.splice(idx, 1);
         let strTicketsArr = JSON.stringify(ticketsArr);
         localStorage.setItem("jira_tickets", strTicketsArr);
-        ticket.remove();
+        
+        ticket.remove(); //UI removal
     })
 }
 
